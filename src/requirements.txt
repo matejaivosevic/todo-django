@@ -1,0 +1,11 @@
+#Core
+Django==3.0.8
+
+# For the persistence stores
+mysqlclient==2.0.2
+
+# Model Tools
+django-model-utils==4.0.0
+
+# Rest apis
+djangorestframework==3.11.0
