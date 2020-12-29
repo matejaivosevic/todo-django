@@ -1,4 +1,5 @@
 from django.db import models
+from django.core import serializers
 
 class Item(models.Model):
     def __str__(self):
@@ -17,3 +18,9 @@ class Item(models.Model):
         default='Low',
     )
     completed = models.BooleanField(default=False)
+
+class User(models.Model):
+    first_name = models.CharField(max_length=200, null=False)
+    last_name = models.CharField(max_length=200, null=False)
+    email = models.CharField(max_length=200, null=False)
+    password = models.CharField(max_length=200, null=False)
