@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ['*']
 
 
 # Application definition
-#AUTH_USER_MODEL = 'todoapp.User'
+AUTH_USER_MODEL = 'todoapp.User'
 
 INSTALLED_APPS = [
     'src.todoapp.apps.TodoappConfig',
