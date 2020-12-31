@@ -21,9 +21,13 @@ def register(request):
     body = request.data
     email = body['email']
 
-    user_exists = User.objects.get(email=email)
-    if user_exists:
-        return HttpResponse('Email already exists...', status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    try:
+        user_exists = User.objects.get(email=email)
+        if user_exists:
+            return HttpResponse('Email already exists...', status=status.HTTP_405_METHOD_NOT_ALLOWED)
+    except Exception:
+        pass
+    
     
     try:
         first_name = body['firstName']
