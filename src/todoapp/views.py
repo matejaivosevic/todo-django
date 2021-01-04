@@ -1,17 +1,19 @@
 from django.shortcuts import render
 import json
 from django.http import HttpResponse
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, renderer_classes
 from .models import User
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework import status
 from django.conf import settings
 from django.contrib.auth.signals import user_logged_in
+from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
+from rest_framework_jwt.authentication import JSONWebTokenAuthentication
+from rest_framework.generics import RetrieveAPIView
 #jwt
 import jwt
 from rest_framework_jwt.utils import jwt_payload_handler
-
 
 def index(request):
     return HttpResponse("Hello, world. You're at the todo app index.")
@@ -27,7 +29,6 @@ def register(request):
             return HttpResponse('Email already exists...', status=status.HTTP_405_METHOD_NOT_ALLOWED)
     except Exception:
         pass
-    
     
     try:
         first_name = body['firstName']
@@ -70,3 +71,32 @@ def authenticate_user(request):
     except KeyError:
         res = {'error': 'please provide a email and a password'}
         return Response(res)
+
+class UserProfileView(RetrieveAPIView):
+    
+        permission_classes = (IsAuthenticated,)
+
+        def get(self, request):
+            try:
+                user_profile = User.objects.get(email=request.user)
+                status_code = status.HTTP_200_OK
+                response = {
+                    'success': 'true',
+                    'status code': status_code,
+                    'message': 'User profile fetched successfully',
+                    'data': [{
+                        'first_name': user_profile.first_name,
+                        'last_name': user_profile.last_name,
+                        'email': user_profile.email
+                        }]
+                    }
+
+            except Exception as e:
+                status_code = status.HTTP_400_BAD_REQUEST
+                response = {
+                    'success': 'false',
+                    'status code': status.HTTP_400_BAD_REQUEST,
+                    'message': 'User does not exists',
+                    'error': str(e)
+                    }
+            return Response(response, status=status_code)
