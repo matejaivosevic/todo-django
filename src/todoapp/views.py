@@ -11,6 +11,10 @@ from django.contrib.auth.signals import user_logged_in
 from rest_framework.renderers import JSONRenderer, TemplateHTMLRenderer
 from rest_framework_jwt.authentication import JSONWebTokenAuthentication
 from rest_framework.generics import RetrieveAPIView
+from src.todoapp.serializers import CreateUserSerializer, UserSerializer
+from rest_framework import viewsets, mixins
+from src.todoapp.permissions import IsUserOrReadOnly
+from rest_framework.decorators import action
 #jwt
 import jwt
 from rest_framework_jwt.utils import jwt_payload_handler
@@ -72,31 +76,32 @@ def authenticate_user(request):
         res = {'error': 'please provide a email and a password'}
         return Response(res)
 
-class UserProfileView(RetrieveAPIView):
-    
-        permission_classes = (IsAuthenticated,)
 
-        def get(self, request):
-            try:
-                user_profile = User.objects.get(email=request.user)
-                status_code = status.HTTP_200_OK
-                response = {
-                    'success': 'true',
-                    'status code': status_code,
-                    'message': 'User profile fetched successfully',
-                    'data': [{
-                        'first_name': user_profile.first_name,
-                        'last_name': user_profile.last_name,
-                        'email': user_profile.email
-                        }]
-                    }
+class UserViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
+                  mixins.CreateModelMixin, viewsets.GenericViewSet):
+    """
+    Creates, Updates and Retrieves - User Accounts
+    """
+    queryset = User.objects.all()
+    serializers = {
+        'default': UserSerializer,
+        'create': CreateUserSerializer
+    }
+    permissions = {
+        'default': (IsUserOrReadOnly,),
+        'create': (AllowAny,)
+    }
 
-            except Exception as e:
-                status_code = status.HTTP_400_BAD_REQUEST
-                response = {
-                    'success': 'false',
-                    'status code': status.HTTP_400_BAD_REQUEST,
-                    'message': 'User does not exists',
-                    'error': str(e)
-                    }
-            return Response(response, status=status_code)
+    def get_serializer_class(self):
+        return self.serializers.get(self.action, self.serializers['default'])
+
+    def get_permissions(self):
+        self.permission_classes = self.permissions.get(self.action, self.permissions['default'])
+        return super().get_permissions()
+
+    @action(detail=False, methods=['get'], url_path='me', url_name='me')
+    def get_user_data(self, instance):
+        try:
+            return Response(UserSerializer(self.request.user, context={'request': self.request}).data, status=status.HTTP_200_OK)
+        except Exception as e:
+            return Response({'error': 'Wrong auth token' + e}, status=status.HTTP_400_BAD_REQUEST)
