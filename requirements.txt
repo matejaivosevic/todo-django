@@ -9,3 +9,6 @@ django-model-utils==4.0.0
 
 # Rest apis
 djangorestframework==3.11.0
+
+pyjwt
+djangorestframework-jwt==1.11.0
