@@ -139,9 +139,8 @@ class TodoViewSet(mixins.RetrieveModelMixin, mixins.UpdateModelMixin,
             description = item['description']
             completed = item['completed']
             priority = item['priority']
-            Item.objects.create(title=title, description=description, priority=priority, user_id=userid, completed=completed)
-
-            return Response(item, status=status.HTTP_200_OK)
+            Item.objects.create(title=title, description=description, priority=priority, user_id=userid, completed=completed) 
+            return Response(list(Item.objects.filter(user_id=userid).values()), status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': 'Create item error ' + e}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -162,7 +161,7 @@ def delete(request, id):
             userid = UserSerializer(request.user, context={'request': request}).data['id']
             item = Item.objects.get(user_id=userid, id=id)
             item.delete()
-            return Response('Deleted', status=status.HTTP_200_OK)
+            return Response(id, status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': 'Delete item error ' + e}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -175,9 +174,8 @@ def update(request, id):
             item.title = newItem['title']
             item.description = newItem['description']
             item.priority = newItem['priority']
-            item.completed = newItem['completed']
             item.save()
-            return Response('Updated', status=status.HTTP_200_OK)
+            return Response(list(Item.objects.filter(user_id=userid).values()), status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': 'Delete item error ' + e}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -188,7 +186,7 @@ def changeCompleted(request, id):
             item = Item.objects.get(user_id=userid, id=id)
             item.completed = not item.completed
             item.save()
-            return Response('Updated', status=status.HTTP_200_OK)
+            return Response(list(Item.objects.filter(user_id=userid).values()), status=status.HTTP_200_OK)
         except Exception as e:
             return Response({'error': 'Delete item error ' + e}, status=status.HTTP_400_BAD_REQUEST)
 
