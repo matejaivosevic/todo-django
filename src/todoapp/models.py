@@ -21,19 +21,17 @@ class User(AbstractBaseUser):
     objects = UserAccountManager()
 
 class Item(models.Model):
-    def __str__(self):
-            return self.title
 
     title = models.CharField(max_length=200, null=False)
     description = models.CharField(max_length=400)
-    completed = models.BooleanField(default=False),
+    completed = models.BooleanField(default=False)
     PRIORITY = [
         ('Low', 'Low'),
         ('Medium', 'Medium'),
         ('High', 'High')
     ]
     priority = models.CharField(
-        max_length=6,
+        max_length=12,
         choices=PRIORITY,
         default='Low',
     )

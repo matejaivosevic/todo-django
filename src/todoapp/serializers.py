@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from src.todoapp.models import User
+from src.todoapp.models import User, Item
 
 class UserSerializer(serializers.ModelSerializer):
 
@@ -13,11 +13,10 @@ class UserSerializer(serializers.ModelSerializer):
             'last_name'
         )
 
-
 class CreateUserSerializer(serializers.ModelSerializer):
-
+    
     def create(self, validated_data):
-        user = User.objects.create_user(**validated_data)
+        user = User.objects.create(**validated_data)
         return user
 
     class Meta:
@@ -27,4 +26,32 @@ class CreateUserSerializer(serializers.ModelSerializer):
             'first_name',
             'last_name',
             'email'
+        )
+
+class TodoSerializer(serializers.ModelSerializer):
+    
+    class Meta:
+        model = Item
+        fields = (
+            'title',
+            'description',
+            'completed',
+            'priority',
+            'user_id'
+        )
+
+class CreateItemSerializer(serializers.ModelSerializer):
+    
+    def create(self, validated_data):
+        item = Item.objects.create(**validated_data)
+        return item
+    
+    class Meta:
+        model = Item
+        fields = (
+            'title',
+            'description',
+            'completed',
+            'priority',
+            'user_id'
         )
