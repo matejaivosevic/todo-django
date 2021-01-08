@@ -52,6 +52,7 @@ INSTALLED_APPS = (
     'src.users',
     'src.social',
     'src.common',
+    'src.movies'
 
     # Third party optional apps
     # app must be placed somewhere after all the apps that are going to be generating activities
